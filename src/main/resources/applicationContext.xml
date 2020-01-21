@@ -18,4 +18,6 @@
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
 
+
+   <!-- <import resource="classpath:spring-elastic.xml"/>  -->
 </beans>

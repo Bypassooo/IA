@@ -11,6 +11,6 @@
     <title>IAV2测试</title>
 </head>
 <body>
-<a href="account/findAll">测试findAll</a>
+<a href="es/queryByCompound">测试es</a>
 </body>
 </html>

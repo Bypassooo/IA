@@ -11,6 +11,8 @@ public class AccountController {
 
     @Autowired
     private IAccountService accountService;
+//    @Autowired
+//    private ElasticsearchUtil es;
 
     @RequestMapping("/findAll")
     public String findAll(){
@@ -18,6 +20,8 @@ public class AccountController {
 
         //调用service方法
         accountService.findAll();
+
+     //   es.estest();
 
         return "list";
     }

@@ -11,6 +11,6 @@
     <title>IAV2测试</title>
 </head>
 <body>
-<a href="es/queryByCompound">测试es</a>
+<a href="es/createIndex">测试es</a>
 </body>
 </html>

@@ -14,7 +14,7 @@ import java.io.IOException;
 
 @Configuration
 public class EsConfig {
-    private String host = "10.29.185.86";
+    private String host = "127.0.0.1";
     private int port = 9200;
     private String schema = "http";
     private int connectTimeOut = 1000;

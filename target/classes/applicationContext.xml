@@ -3,6 +3,7 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:elasticsearch="http://www.springframework.org/schema/data/elasticsearch"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
    http://www.springframework.org/schema/beans/spring-beans.xsd
    http://www.springframework.org/schema/context
@@ -10,7 +11,21 @@
    http://www.springframework.org/schema/aop
    http://www.springframework.org/schema/aop/spring-aop.xsd
    http://www.springframework.org/schema/tx
-   http://www.springframework.org/schema/tx/spring-tx.xsd">
+   http://www.springframework.org/schema/tx/spring-tx.xsd
+   http://www.springframework.org/schema/data/elasticsearch
+   http://www.springframework.org/schema/data/elasticsearch/spring-elasticsearch-1.0.xsd">
+
+    <!--es客户端对象的配置-->
+    <elasticsearch:transport-client id="esClient" cluster-name="my-application"
+                                    cluster-nodes="127.0.0.1:9300"/>
+    <!--配置包扫描器-->
+    <elasticsearch:repositories base-package="it.ztzq.repositories"/>
+
+    <!--配置es模板-->
+    <bean id="elasticsearchTemplate" class="org.springframework.data.elasticsearch.core.ElasticsearchTemplate">
+        <constructor-arg name="client" ref="esClient"/>
+    </bean>
+
 
     <!--开启注解扫描,只扫描service和dao，不扫描controller-->
     <context:component-scan base-package="it.ztzq">
@@ -18,6 +33,4 @@
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
 
-
-   <!-- <import resource="classpath:spring-elastic.xml"/>  -->
 </beans>

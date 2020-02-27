@@ -16,7 +16,7 @@ public class AccountController {
 
     @RequestMapping("/findAll")
     public String findAll(){
-        System.out.println("表现层：查询所有账户。。。。");
+        System.out.println("controller findall ");
 
         //调用service方法
         accountService.findAll();

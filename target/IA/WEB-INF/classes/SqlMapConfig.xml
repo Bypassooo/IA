@@ -9,9 +9,9 @@
             <transactionManager type="JDBC"></transactionManager>
             <dataSource type="POOLED">
                 <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql:///IA?serverTimezone=UTC"/>
+                <property name="url" value="jdbc:mysql:///cmdb?serverTimezone=UTC"/>
                 <property name="username" value="root"/>
-                <property name="password" value="1234"/>
+                <property name="password" value="-pl,mko0"/>
             </dataSource>
         </environment>
     </environments>

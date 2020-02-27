@@ -11,6 +11,6 @@
     <title>IAV2测试</title>
 </head>
 <body>
-<a href="es/createIndex">测试es</a>
+<a href="log/findByPid">测试联通情况</a>
 </body>
 </html>

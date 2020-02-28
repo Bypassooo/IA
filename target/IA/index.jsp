@@ -11,6 +11,6 @@
     <title>IAV2测试</title>
 </head>
 <body>
-<a href="log/findByPid">测试联通情况</a>
+<a href="log/findByPid">模糊查询str</a>
 </body>
 </html>

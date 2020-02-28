@@ -27,12 +27,6 @@ public class LogTest {
     }
 
     @Test
-    public void findBynodeId() throws Exception{
-        List<Log> logs = logRepository.findByNodeId("9821");
-        logs.stream().forEach(log -> System.out.println(log));
-    }
-
-    @Test
     public void findByBuf() throws Exception{
         List<Log> logs = logRepository.findByBuf("01300000000000000000309821098210000098F2B3CDB850KCXP00 GV2gODkBbGg");
         logs.stream().forEach(log -> System.out.println(log));
@@ -45,15 +39,13 @@ public class LogTest {
     }
 
     @Test
-    public void findByPid() throws Exception{
-        List<Log> logs = logRepository.findByPid("1c1c-198c");
-        logs.stream().forEach(log -> System.out.println(log));
-    }
-
-    @Test
-    public void findByMsgId() throws Exception{
-        List<Log> logs = logRepository.findByMsgId("66800121015E2EAB21F81431");
-        logs.stream().forEach(log -> System.out.println(log));
+    public  void testStr() throws Exception{
+        String str1 = "fund=";
+        String str2 = "lbm=123";
+        String Array[] = {"",""};
+        System.out.println(Array.length);
+        Array = str1.split("=");
+        System.out.println(Array.length);
     }
 
 }

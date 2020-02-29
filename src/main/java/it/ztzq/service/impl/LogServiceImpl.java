@@ -3,9 +3,15 @@ package it.ztzq.service.impl;
 import it.ztzq.domain.Log;
 import it.ztzq.repositories.LogRepository;
 import it.ztzq.service.ILogService;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resources;
+import java.io.File;
+import java.io.InputStream;
 import java.util.*;
 
 @Service("logService")
@@ -37,6 +43,33 @@ public class LogServiceImpl implements ILogService {
         for(Map.Entry<String,String> entry:strMap.entrySet()){
             System.out.println(entry.getKey()+"="+entry.getValue());
         }
+
+        /////读取xml配置文件
+        try {
+            InputStream in = LogServiceImpl.class.getClassLoader().getResourceAsStream("KESB_To_KFMS.xml");
+            SAXBuilder sb = new SAXBuilder();
+            Document document = sb.build(in);
+            //获取根节点
+            Element root = document.getRootElement();
+            List<Element> childList = root.getChildren();
+            for(Element e: childList){
+                if(e.getName() == "dict")
+                {
+                    continue;
+                }
+                else
+                {
+                    System.out.println(e.getName());
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            System.out.println(e.fillInStackTrace());
+        }
+
+
 
 
     }

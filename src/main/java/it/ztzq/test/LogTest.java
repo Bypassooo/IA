@@ -1,7 +1,12 @@
 package it.ztzq.test;
 
 import it.ztzq.domain.Log;
+import it.ztzq.domain.Message;
 import it.ztzq.repositories.LogRepository;
+import it.ztzq.service.impl.LogServiceImpl;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +14,8 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.List;
-import java.util.Optional;
+import java.io.InputStream;
+import java.util.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext.xml")
@@ -40,12 +45,43 @@ public class LogTest {
 
     @Test
     public  void testStr() throws Exception{
-        String str1 = "fund=";
-        String str2 = "lbm=123";
-        String Array[] = {"",""};
-        System.out.println(Array.length);
-        Array = str1.split("=");
-        System.out.println(Array.length);
-    }
+        InputStream in = LogServiceImpl.class.getClassLoader().getResourceAsStream("KESB_To_KFMS.xml");
+        SAXBuilder sb = new SAXBuilder();
+        Document document = sb.build(in);
+            //获取根节点
+        Element root = document.getRootElement();
+        List<Element> childList = root.getChildren();
+        List<Message> messageList =  new ArrayList<Message>();
 
+        for(Element e: childList){
+            Message message = new Message();
+            if(e.getName() == "dict") {
+                continue;
+            }
+            else {
+                //将每个message节点放入message中
+                message.setTitle(e.getAttributeValue("title"));
+                message.setDst(e.getAttributeValue("dst"));
+                message.setSrc(e.getAttributeValue("src"));
+                Element inputElement = e.getChild("input");
+                //获取field节点列表
+                List<Element> fieldList = inputElement.getChildren();
+                Map<String,String> fieldMap = new HashMap<String,String>();
+                for(Element field :fieldList){
+                    fieldMap.put(field.getAttributeValue("dst"),field.getAttributeValue("src"));
+                }
+                message.setFieldMap(fieldMap);
+            }
+            messageList.add(message);
+        }
+        //检查数据是否都存入List中
+        for(Message m:messageList){
+            System.out.println(m.getTitle());
+            System.out.println(m.getDst());
+            System.out.println(m.getSrc());
+            for(Map.Entry<String,String> entry:m.getFieldMap().entrySet()){
+                System.out.println("dst="+entry.getKey()+",src="+entry.getValue());
+            }
+        }
+    }
 }

@@ -11,8 +11,6 @@ public interface LogRepository extends ElasticsearchRepository<Log, String> {
 
     @Query("{\"bool\" : {\"must\" : {\"term\" : {\"Buf\" : \"?0\"}}}}")
     List<Log> findByBuf(String Buf);
-//    @Query("{\"bool\":{\"must\":[{\"match\":{\"SrcIp\":\"?0\"}}]}}")
-//    List<Log> findBySrcIp(String SrcIp);
     List<Log> findByMethod(String method);
     @Query("{\"bool\":{\"must\":[{\"match\":{\"MsgId\":\"?0\"}}]}}")
     Optional<Log> findByMsgId(String MsgId);

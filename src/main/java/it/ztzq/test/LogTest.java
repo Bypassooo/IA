@@ -45,7 +45,7 @@ public class LogTest {
 
     @Test
     public  void testStr() throws Exception{
-        InputStream in = LogServiceImpl.class.getClassLoader().getResourceAsStream("KESB_To_KFMS.xml");
+        InputStream in = LogServiceImpl.class.getClassLoader().getResourceAsStream("trans/KESB_To_KFMS.xml");
         SAXBuilder sb = new SAXBuilder();
         Document document = sb.build(in);
             //获取根节点

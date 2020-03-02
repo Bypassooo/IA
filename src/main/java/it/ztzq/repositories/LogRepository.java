@@ -18,4 +18,6 @@ public interface LogRepository extends ElasticsearchRepository<Log, String> {
     Optional<Log> findByMsgIdAndMethod(String MsgId, String Method);
     @Query(" {\"bool\": { \"must\": [ { \"query_string\": { \"default_field\": \"message\", \"query\": \"?3\" }}, { \"bool\": { \"must\": [ { \"match\": { \"offset\": ?0  } }, { \"match\": {  \"method\": \"?2\"  } },{\"match\":{\"NodeId\": \"?1\"}} ] } } ] } }")
     List<Log> findByOffsetAndNodeIdAndMethodAndMessageContains(Long offSet, String nodeId, String method, String checkStr);
+    @Query(" {\"bool\": { \"must\": [ { \"query_string\": { \"default_field\": \"message\", \"query\": \"?3\" }}, { \"bool\": { \"must\": [ { \"match\": { \"functionid\": \"?0\"  } }, { \"match\": {  \"method\": \"?2\"  } },{\"match\":{\"serviceid\": \"?1\"}} ] } } ] } }")
+    List<Log> findByFunctionidAndServiceidAndMethodAndMessageContains(String functionid, String serviceid, String method, String checkStr);
 }

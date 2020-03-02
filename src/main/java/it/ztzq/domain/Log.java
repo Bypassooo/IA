@@ -7,7 +7,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-@Document(indexName = "logstash-2020.02.28", type = "doc")
+@Document(indexName = "msglog_2020.03.02", type = "doc")
 public class Log {
     @Id
     private Long id;
@@ -29,10 +29,12 @@ public class Log {
     @JsonProperty("NodeId")
     @Field(index = true, type = FieldType.Text, normalizer = "false")
     private String NodeId;
-//    @Field(index = true, type = FieldType.Text, normalizer = "false")
-//    private String funcid;
-//    @Field(index = true, type = FieldType.Text, normalizer = "false")
-//    private String serviceid;
+    @Field(index = true, type = FieldType.Text, normalizer = "false")
+    private String functionid;
+    @Field(index = true, type = FieldType.Text, normalizer = "false")
+    private String serviceid;
+    @Field(index = true, type = FieldType.Text, normalizer = "false")
+    private String systemtype;
 
 
     public Long getOffset() {
@@ -58,22 +60,6 @@ public class Log {
     public void setId(Long id) {
         this.id = id;
     }
-
-//    public String getFuncid() {
-//        return funcid;
-//    }
-//
-//    public void setFuncid(String funcid) {
-//        this.funcid = funcid;
-//    }
-//
-//    public String getServiceid() {
-//        return serviceid;
-//    }
-//
-//    public void setServiceid(String serviceid) {
-//        this.serviceid = serviceid;
-//    }
 
     public String getMethod() {
         return method;
@@ -115,6 +101,38 @@ public class Log {
         SrcIP = srcIP;
     }
 
+    public String getSrcIP() {
+        return SrcIP;
+    }
+
+    public void setSrcIP(String srcIP) {
+        SrcIP = srcIP;
+    }
+
+    public String getFunctionid() {
+        return functionid;
+    }
+
+    public void setFunctionid(String functionid) {
+        this.functionid = functionid;
+    }
+
+    public String getServiceid() {
+        return serviceid;
+    }
+
+    public void setServiceid(String serviceid) {
+        this.serviceid = serviceid;
+    }
+
+    public String getSystemtype() {
+        return systemtype;
+    }
+
+    public void setSystemtype(String systemtype) {
+        this.systemtype = systemtype;
+    }
+
     @Override
     public String toString() {
         return "Log{" +
@@ -126,6 +144,9 @@ public class Log {
                 ", method='" + method + '\'' +
                 ", offset=" + offset +
                 ", NodeId='" + NodeId + '\'' +
+                ", functionid='" + functionid + '\'' +
+                ", serviceid='" + serviceid + '\'' +
+                ", systemtype='" + systemtype + '\'' +
                 '}';
     }
 }

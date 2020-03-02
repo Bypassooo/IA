@@ -6,17 +6,12 @@ import it.ztzq.domain.Rmsg;
 import it.ztzq.repositories.LogRepository;
 import it.ztzq.repositories.RmsgRepository;
 import it.ztzq.service.ILogService;
-import javafx.beans.binding.LongExpression;
 import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resources;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -26,40 +21,64 @@ public class LogServiceImpl implements ILogService {
     @Autowired
     private LogRepository logRepository;
     @Autowired
-    private RmsgRepository repository;
+    private RmsgRepository rmsgRepository;
     @Override
     public void findByOffsetAndNodeIdAndMethodAndMessageContains(Long offSet, String nodeId, String method, String checkStr) {
-        List<Log> logs = logRepository.findByOffsetAndNodeIdAndMethodAndMessageContains(offSet, nodeId, method, checkStr);
+        int a = 1;
+    }
+    @Override
+    public void findByFunctionidAndServiceidAndMethodAndMessageContains(String functionid, String serviceid, String method, String checkStr){
+
+        List<Log> logs = logRepository.findByFunctionidAndServiceidAndMethodAndMessageContains(functionid, serviceid, method, checkStr);
+        String msgAns = logs.get(0).getMessage();
+        Map<String,String> msgAnsMap = splitStrtoList(msgAns);
+        System.out.println(msgAns);
+        System.out.println(logs);
         //一个功能号只有一条应答（确认是否只有一条应答)
         Optional<Log> optional = logRepository.findByMsgIdAndMethod(logs.get(0).getMsgId(),"Req");
         String msgMessage = optional.get().getMessage();
-        Map<String,String> msgMap = splitStrtoList(msgMessage);
+        System.out.println(msgMessage);
+        Map<String,String> msgReqMap = splitStrtoList(msgMessage);
         //////////获取rmsg记录
         //获取MsgId找到对应的rmsg
         String orgMsgid = optional.get().getMsgId();
-        orgMsgid = "6680012102DC6C00222CC85C";
         //此处需要考虑返回值为空的情况（后续完善代码）
-        Optional<Rmsg> optionalRmsg = repository.findByOrgMsgid(orgMsgid);
+        System.out.println(orgMsgid);
+        Optional<Rmsg> optionalRmsg = rmsgRepository.findByOrgMsgid(orgMsgid);
+        System.out.println(optionalRmsg);
         String rmsgMessage = optionalRmsg.get().getMessage();
         System.out.println(rmsgMessage);
-        Map<String,String> rmsgMap = splitStrtoList(rmsgMessage);
-        for(Map.Entry<String,String> entry:rmsgMap.entrySet()){
-            System.out.println(entry.getKey()+"="+entry.getValue());
-        }
+//        Map<String,String> rmsgMap = splitStrtoList(rmsgMessage);
+//        for(Map.Entry<String,String> entry:rmsgMap.entrySet()){
+//            System.out.println(entry.getKey()+"="+entry.getValue());
+//        }
+
 
         //获取转换文件
         try {
-            List<Message> transList = getXmlTransinfo("trans/KESB_TO_KSOT.xml");
+            List<Message> transList = getXmlTransinfo("trans/Kingdom_To_OTC.xml");
         }catch (Exception e){
             System.out.println(e.fillInStackTrace());
         }
         // 将rmsg中的字段进行转换
+
+    }
+    public Map<String,String> splitAnsStrtoList(String message){
+        String compareStr = message.substring(message.indexOf("_RS_2="));
+        List<String> resultList = new ArrayList<String>();
+        Map<String,String> resultMap = new HashMap<String,String>();
+        for(String str:compareStr.split(";")){
+            resultList.add(str);
+        }
+
+
     }
     public Map<String, String> splitStrtoList(String message){
         //buf之后的字符串
         String bufStr = message.substring(message.indexOf("Buf"));
         //将buf中需要比对的字符串截取出来
-        String compareStr = bufStr.substring(bufStr.indexOf("_ENDIAN=0&")+10,bufStr.indexOf("&_KesbServiceIDVersion"));
+        String compareStr = bufStr.substring(130);
+        System.out.println(compareStr);
         List<String> strList = new ArrayList<String>();
         Map<String,String> strMap = new HashMap<String,String>();
         for(String str:compareStr.split("&")){

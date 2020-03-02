@@ -12,7 +12,7 @@ public class LogController {
     private ILogService logService;
     @RequestMapping("/findByPid")
     public String findByPid(){
-        logService.findByOffsetAndNodeIdAndMethodAndMessageContains(37510L, "9821", "Ans","&_1=0,0");
+        logService.findByFunctionidAndServiceidAndMethodAndMessageContains("L2620137","OTC","Ans","&_1=0,0");
         System.out.println("测试findByPid");
         return "list";
     }

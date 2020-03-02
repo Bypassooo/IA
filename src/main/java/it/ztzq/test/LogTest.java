@@ -84,4 +84,11 @@ public class LogTest {
             }
         }
     }
+
+    @Test
+    public void Testfunction()throws Exception{
+        //List<Log> logs = logRepository.findByOffsetAndNodeIdAndMethodAndMessageContains(100L,"9821","Ans","&_1=0,0");
+        List<Log> logs =logRepository.findByFunctionidAndServiceidAndMethodAndMessageContains("L2620137","OTC","Ans","&_1=0,0");
+        System.out.println(logs);
+    }
 }

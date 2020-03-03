@@ -4,12 +4,15 @@ import it.ztzq.domain.Log;
 import it.ztzq.domain.Message;
 import it.ztzq.repositories.LogRepository;
 import it.ztzq.service.impl.LogServiceImpl;
+import org.elasticsearch.common.util.set.Sets;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -42,53 +45,32 @@ public class LogTest {
         List<Log> logs = logRepository.findByMethod("Ans");
         logs.stream().forEach(log -> System.out.println(log));
     }
-
     @Test
-    public  void testStr() throws Exception{
-        InputStream in = LogServiceImpl.class.getClassLoader().getResourceAsStream("trans/KESB_To_KFMS.xml");
-        SAXBuilder sb = new SAXBuilder();
-        Document document = sb.build(in);
-            //获取根节点
-        Element root = document.getRootElement();
-        List<Element> childList = root.getChildren();
-        List<Message> messageList =  new ArrayList<Message>();
+    public void test() throws Exception{
+        Map<String,String> map1 = new HashMap<>();
+        Map<String,String> map2 = new HashMap<>();
+        Set<String> keyInter = new HashSet<String>();
+        map1.put("1","a");
+        map1.put("2","b");
+        map1.put("3","c");
 
-        for(Element e: childList){
-            Message message = new Message();
-            if(e.getName() == "dict") {
-                continue;
-            }
-            else {
-                //将每个message节点放入message中
-                message.setTitle(e.getAttributeValue("title"));
-                message.setDst(e.getAttributeValue("dst"));
-                message.setSrc(e.getAttributeValue("src"));
-                Element inputElement = e.getChild("input");
-                //获取field节点列表
-                List<Element> fieldList = inputElement.getChildren();
-                Map<String,String> fieldMap = new HashMap<String,String>();
-                for(Element field :fieldList){
-                    fieldMap.put(field.getAttributeValue("dst"),field.getAttributeValue("src"));
-                }
-                message.setFieldMap(fieldMap);
-            }
-            messageList.add(message);
-        }
-        //检查数据是否都存入List中
-        for(Message m:messageList){
-            System.out.println(m.getTitle());
-            System.out.println(m.getDst());
-            System.out.println(m.getSrc());
-            for(Map.Entry<String,String> entry:m.getFieldMap().entrySet()){
-                System.out.println("dst="+entry.getKey()+",src="+entry.getValue());
-            }
-        }
-    }
+        map2.put("1","a");
+        map2.put("2","b");
+        map2.put("4","d");
+        map2.put("5","e");
 
-    @Test
-    public void Testfunction()throws Exception{
-        //List<Log> logs = logRepository.findByOffsetAndNodeIdAndMethodAndMessageContains(100L,"9821","Ans","&_1=0,0");
-        List<Log> logs =logRepository.findByFunctionidAndServiceidAndMethodAndMessageContains("L2620137","OTC","Ans","&_1=0,0");
-        System.out.println(logs);
-    }
+        Set<String> mapKey1 = map1.keySet();
+        Set<String> mapKey2 = map2.keySet();
+
+        keyInter.addAll(mapKey1);
+        keyInter.retainAll(mapKey2);
+
+        System.out.println(mapKey1);
+        System.out.println(mapKey2);
+        System.out.println(keyInter);
+
+
+
+        }
+
 }

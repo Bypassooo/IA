@@ -15,6 +15,11 @@ public class Rmsg {
     private String OrgMsgid;
     @Field(index = true, type = FieldType.Text, normalizer = "false")
     private String message;
+    @JsonProperty("MsgId")
+    @Field(index = true, type = FieldType.Text, normalizer = "false")
+    private String MsgId;
+    @Field(index = true, type = FieldType.Text, normalizer = "false")
+    private String method;
 
     public Long getId() {
         return id;
@@ -40,12 +45,30 @@ public class Rmsg {
         this.message = message;
     }
 
+    public String getMsgId() {
+        return MsgId;
+    }
+
+    public void setMsgId(String msgId) {
+        MsgId = msgId;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
     @Override
     public String toString() {
         return "Rmsg{" +
                 "id=" + id +
                 ", OrgMsgid='" + OrgMsgid + '\'' +
                 ", message='" + message + '\'' +
+                ", MsgId='" + MsgId + '\'' +
+                ", method='" + method + '\'' +
                 '}';
     }
 }

@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface RmsgRepository extends ElasticsearchRepository<Rmsg,String> {
     @Query("{\"bool\":{\"must\":[{\"match\":{\"OrgMsgid\":\"?0\"}}]}}")
     Optional<Rmsg> findByOrgMsgid(String OrgMsgid);
+    @Query("\"bool\": {\"must\": [ { \"match\": {   \"method\": \"?1\"   } }, { \"match\": {  \"MsgId\": \"?0\"   }  }  ] }")
+    Optional<Rmsg> findByMsgIdAndMethod(String MsgId, String Method);
 }

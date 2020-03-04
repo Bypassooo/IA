@@ -45,9 +45,14 @@ public class LogServiceImpl implements ILogService {
         //获取MsgId找到对应的rmsg
         String orgMsgid = optional.get().getMsgId();
         //此处需要考虑返回值为空的情况（后续完善代码）
-        System.out.println(orgMsgid);
         Optional<Rmsg> optionalRmsg = rmsgRepository.findByOrgMsgid(orgMsgid);
         String rmsgReqMessage = optionalRmsg.get().getMessage();
+        int rmsgReqMessageLength = rmsgReqMessage.length();
+        String lastCh = rmsgReqMessage.substring(rmsgReqMessageLength-1,rmsgReqMessageLength);
+        String lastSecondCh = rmsgReqMessage.substring(rmsgReqMessageLength-2,rmsgReqMessageLength-1);
+        if(lastCh.equals(" ") && lastSecondCh.equals("&")){
+            rmsgReqMessage = rmsgReqMessage.substring(0,rmsgReqMessageLength-2);
+        }
         Map<String,String> rmsgReqMap = splitReqStrtoList(rmsgReqMessage);
 
         String rmsgMsgId = optionalRmsg.get().getMsgId();
@@ -77,9 +82,27 @@ public class LogServiceImpl implements ILogService {
         resultReqSet = comparTwoMap(msgReqTransMap,rmsgReqMap);
         resultAnsSet = comparTwoMap(msgAnsTransMap,rmsgAnsMap);
 
+        //用来判断是否相等, 0表示两边参数一致，
+        //               1表示msg中有,rmsg中没有
+        //               2表示msg中没有，rmsg中有
+        //               3表示两边都有但是值不一样
+        System.out.println("msg中有而rmsg中没有的参数");
         for(Result a:resultReqSet){
-            System.out.println(a.getFlag());
-            if(a.getFlag() != 0){
+            if(a.getFlag() == 1){
+                System.out.println("key = "+a.getKey()+" ,msgReq = "+a.getMsgvalue()+" ,rmsgReq = "+a.getRmsgvalue());
+            }
+        }
+
+        System.out.println("msg中没有而rmsg中有的参数");
+        for(Result a:resultReqSet){
+            if(a.getFlag() == 2){
+                System.out.println("key = "+a.getKey()+" ,msgReq = "+a.getMsgvalue()+" ,rmsgReq = "+a.getRmsgvalue());
+            }
+        }
+
+        System.out.println("msg和rmsg中都有的参数，但是值不一样");
+        for(Result a:resultReqSet){
+            if(a.getFlag() == 3){
                 System.out.println("key = "+a.getKey()+" ,msgReq = "+a.getMsgvalue()+" ,rmsgReq = "+a.getRmsgvalue());
             }
         }
@@ -93,6 +116,10 @@ public class LogServiceImpl implements ILogService {
         for(Map.Entry<String,String> entry:map1.entrySet()){
             //考虑转换关系中没有的情况
             String src = entry.getKey();
+            int direction = 1;//Req时
+            //如果是Req则是需要由src转为dst
+            //如果是Ans则是需要由dst转为src
+
             String dst = funcInputTransMap.get(src);
             if(dst == null){
                 dst = src;
@@ -106,6 +133,7 @@ public class LogServiceImpl implements ILogService {
         //首先处理key的交集部分
         Set<String> msgReqTransKey = map1.keySet();
         Set<String> rmsgReqKey = map2.keySet();
+        //rmsgkey中存在空的key，应该去掉
         //key的交集
         Set<String> keyInter = new HashSet<>();
         Set<String> msgDiff = new HashSet<>();
@@ -118,11 +146,12 @@ public class LogServiceImpl implements ILogService {
         msgDiff = Sets.difference(msgReqTransKey,keyInter);
         //msg中没有rmsg有的那部分
         rmsgDiff = Sets.difference(rmsgReqKey,keyInter);
-        Result result = new Result();
+
         for(String str:keyInter){
+            Result result = new Result();
             String msgValue = map1.get(str);
             String rmsgValue = map2.get(str);
-            if(msgValue == rmsgValue){
+            if(msgValue.equals(rmsgValue)){
                 result.setFlag(0);
             }
             else{
@@ -132,34 +161,32 @@ public class LogServiceImpl implements ILogService {
             result.setMsgvalue(msgValue);
             result.setRmsgvalue(rmsgValue);
             resultReqSet.add(result);
-            result.clear();
         }
         //第二部处理msgReq中比rmsg中多的那一部分
         for(String str:msgDiff){
+            Result result = new Result();
             String msgValue = map1.get(str);
             result.setKey(str);
             result.setMsgvalue(msgValue);
             result.setRmsgvalue("");
             result.setFlag(1);
             resultReqSet.add(result);
-            result.clear();
         }
         //第三部分处理rmsg中比msg中多的那一部分
         for(String str:rmsgDiff){
+            Result result = new Result();
             String rmsgValue = map2.get(str);
             result.setKey(str);
             result.setRmsgvalue(rmsgValue);
             result.setMsgvalue("");
             result.setFlag(2);
             resultReqSet.add(result);
-            result.clear();
         }
         return resultReqSet;
     }
     public Map<String,String> splitAnsStrtoList(String message){
 
         String compareStr = message.substring(message.indexOf("_RS_2="));
-        System.out.println(compareStr);
         List<String> resultList = new ArrayList<String>();
         Map<String,String> resultMap = new HashMap<String,String>();
 
@@ -169,7 +196,6 @@ public class LogServiceImpl implements ILogService {
         //将keyname分开
         String[] keyName = resultList.get(2).split(",");
         int checkFlag = resultList.get(3).indexOf("&_EORS");
-        System.out.println("checkFlag"+checkFlag);
         //value为空
         if(checkFlag == 1){
             String[] value = resultList.get(4).split(":");
@@ -183,7 +209,6 @@ public class LogServiceImpl implements ILogService {
             int beginStr = value.indexOf("=");
             int endStr = value.indexOf("&_EORS_");
             String keyCheck = value.substring(beginStr,endStr);
-            System.out.println(keyCheck);
             String[] keyValue = keyCheck.split(",");
             if(keyName.length == keyValue.length){
                 for(int i = 0; i < keyName.length; i++){
@@ -215,9 +240,6 @@ public class LogServiceImpl implements ILogService {
                 resultMap.put("valueSurplus",valuSurplus);
             }
         }
-        for(Map.Entry<String,String>entry:resultMap.entrySet()){
-            System.out.println(entry.getKey() +"="+ entry.getValue());
-        }
 
         return resultMap;
 
@@ -227,12 +249,12 @@ public class LogServiceImpl implements ILogService {
         String bufStr = message.substring(message.indexOf("Buf"));
         //将buf中需要比对的字符串截取出来
         String compareStr = bufStr.substring(130);
-        System.out.println(compareStr);
         List<String> strList = new ArrayList<String>();
         Map<String,String> strMap = new HashMap<String,String>();
         for(String str:compareStr.split("&")){
             strList.add(str);
         }
+
 
         for(String out :strList){
             String[] buff = {"",""};
@@ -267,13 +289,19 @@ public class LogServiceImpl implements ILogService {
                 //获取field节点列表
                 List<Element> fieldList = inputElement.getChildren();
                 Map<String,String> fieldMap = new HashMap<String,String>();
-                for(Element field :fieldList){
-                    fieldMap.put(field.getAttributeValue("dst"),field.getAttributeValue("src"));
+                if(direction.equals("input")) {
+                    for (Element field : fieldList) {
+                        fieldMap.put(field.getAttributeValue("src"), field.getAttributeValue("dst"));
+                    }
+                }
+                else{
+                    for (Element field : fieldList) {
+                        fieldMap.put(field.getAttributeValue("dst"), field.getAttributeValue("src"));
+                    }
                 }
                 message.setFieldMap(fieldMap);
             }
             xmlMap.put(e.getAttributeValue("src"),message);
-         //   messageList.add(message);
         }
         return xmlMap;
     }

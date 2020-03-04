@@ -1,23 +1,15 @@
 package it.ztzq.test;
 
 import it.ztzq.domain.Log;
-import it.ztzq.domain.Message;
 import it.ztzq.repositories.LogRepository;
-import it.ztzq.service.impl.LogServiceImpl;
-import org.elasticsearch.common.util.set.Sets;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.input.SAXBuilder;
+import it.ztzq.repositories.RmsgRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.InputStream;
 import java.util.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -27,6 +19,8 @@ public class LogTest {
     private LogRepository logRepository;
     @Autowired
     private ElasticsearchTemplate elasticsearchTemplate;
+    @Autowired
+    private RmsgRepository rmsgRepository;
 
     @Test
     public void findAll() throws Exception{
@@ -47,29 +41,19 @@ public class LogTest {
     }
     @Test
     public void test() throws Exception{
-        Map<String,String> map1 = new HashMap<>();
-        Map<String,String> map2 = new HashMap<>();
-        Set<String> keyInter = new HashSet<String>();
-        map1.put("1","a");
-        map1.put("2","b");
-        map1.put("3","c");
+        Set<String> set1 = new HashSet<>();
+        Set<String> set2 = new HashSet<>();
+        Set<String> set3 = new HashSet<>();
+        set1.add("1");
+        set1.add("2");
+        set2.add("1");
+        set2.add("2");
+        set2.add("3");
 
-        map2.put("1","a");
-        map2.put("2","b");
-        map2.put("4","d");
-        map2.put("5","e");
-
-        Set<String> mapKey1 = map1.keySet();
-        Set<String> mapKey2 = map2.keySet();
-
-        keyInter.addAll(mapKey1);
-        keyInter.retainAll(mapKey2);
-
-        System.out.println(mapKey1);
-        System.out.println(mapKey2);
-        System.out.println(keyInter);
-
-
+        set3.addAll(set1);
+        System.out.println(set3);
+        set3.retainAll(set2);
+        System.out.println(set3);
 
         }
 

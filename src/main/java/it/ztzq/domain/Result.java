@@ -56,7 +56,7 @@ public class Result {
         this.setKey("");
         this.setMsgvalue("");
         this.setRmsgvalue("");
-        this.setFlag(4);
+        this.setFlag(12);
     }
 
 

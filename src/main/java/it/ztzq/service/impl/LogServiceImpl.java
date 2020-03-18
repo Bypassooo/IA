@@ -1,11 +1,9 @@
 package it.ztzq.service.impl;
 
-import it.ztzq.domain.Log;
-import it.ztzq.domain.Message;
-import it.ztzq.domain.Result;
-import it.ztzq.domain.Rmsg;
+import it.ztzq.domain.*;
 import it.ztzq.repositories.LogRepository;
 import it.ztzq.repositories.RmsgRepository;
+import it.ztzq.service.ILogResultService;
 import it.ztzq.service.ILogService;
 import org.elasticsearch.common.util.set.Sets;
 import org.jdom2.Document;
@@ -25,48 +23,87 @@ public class LogServiceImpl implements ILogService {
     private LogRepository logRepository;
     @Autowired
     private RmsgRepository rmsgRepository;
+    //升级之前msg与rmsg的对比
     @Override
-    public void findByOffsetAndNodeIdAndMethodAndMessageContains(Long offSet, String nodeId, String method, String checkStr) {
-        int a = 1;
-    }
-    @Override
-    public void findByFunctionidAndServiceidAndMethodAndMessageContains(String functionid, String serviceid, String method, String checkStr, Pageable pageable){
+    public Set<LogResult> compareLog(String version, String functionid, String serviceid, String method, String checkStr, Pageable pageable,String time) {
 
-        List<Log> logs = logRepository.findByFunctionidAndServiceidAndMethodAndMessageContains(functionid, serviceid, method, checkStr, pageable);
-        String msgAns = logs.get(34).getMessage();
+        /**************升级前msg数据的处理********************/
+        //msg升级前的数据
+        List<Log> bUlogs = logRepository.findByFunctionidAndServiceidAndMethodAndTimeAndMessageContainsBeforeUpdate(functionid, serviceid, method, time, checkStr, pageable);
+        String bUmsgAns = bUlogs.get(20).getMessage();
+        System.out.println(bUmsgAns);
         //获取msg中Ans的map
-        Map<String,String> msgAnsMap = splitAnsStrtoList(msgAns);
-        //一个功能号只有一条应答（确认是否只有一条应答)
-        Optional<Log> optional = logRepository.findByMsgIdAndMethod(logs.get(0).getMsgId(),"Req");
-        String msgReqMessage = optional.get().getMessage();
+        Map<String,String> bUmsgAnsMap = splitAnsStrtoList(bUmsgAns);
+        Optional<Log> bUoptional = logRepository.findByMsgIdAndMethod(bUlogs.get(0).getMsgId(),"Req");
+        String bUmsgReqMessage = bUoptional.get().getMessage();
         //获取msg中Req的map
-        Map<String,String> msgReqMap = splitReqStrtoList(msgReqMessage);
+        Map<String,String> bUmsgReqMap = splitReqStrtoList(bUmsgReqMessage);
+        /**************升级后msg数据的处理********************/
+        List<Log> aUlogs = logRepository.findByFunctionidAndServiceidAndMethodAndTimeAndMessageContainsAfterUpdate(functionid, serviceid, method, time, checkStr, pageable);
+        aUlogs.stream().forEach(log -> System.out.println(log));
+        String aUmsgAns = aUlogs.get(2).getMessage();
+        Map<String,String> aUmsgAnsMap = splitAnsStrtoList(aUmsgAns);
+        Optional<Log> aUoptional =  logRepository.findByMsgIdAndMethod(aUlogs.get(0).getMsgId(),"Req");
+        String aUmsgReqMessage = aUoptional.get().getMessage();
+        Map<String,String> aUmsgReqMap = splitReqStrtoList(aUmsgReqMessage);
+        /**************升级前rmsg数据的处理********************/
         //////////获取rmsg记录
         //获取MsgId找到对应的rmsg
-        String orgMsgid = optional.get().getMsgId();
+        String bUorgMsgid = bUoptional.get().getMsgId();
         //此处需要考虑返回值为空的情况（后续完善代码）
-        Optional<Rmsg> optionalRmsg = rmsgRepository.findByOrgMsgid(orgMsgid);
-        String rmsgReqMessage = optionalRmsg.get().getMessage();
-        int rmsgReqMessageLength = rmsgReqMessage.length();
-        String lastCh = rmsgReqMessage.substring(rmsgReqMessageLength-1,rmsgReqMessageLength);
-        String lastSecondCh = rmsgReqMessage.substring(rmsgReqMessageLength-2,rmsgReqMessageLength-1);
-        if(lastCh.equals(" ") && lastSecondCh.equals("&")){
-            rmsgReqMessage = rmsgReqMessage.substring(0,rmsgReqMessageLength-2);
+        Optional<Rmsg> optionalRmsg = rmsgRepository.findByOrgMsgid(bUorgMsgid);
+        String bUrmsgReqMessage = optionalRmsg.get().getMessage();
+        int bUrmsgReqMessageLength = bUrmsgReqMessage.length();
+        String bUlastCh = bUrmsgReqMessage.substring(bUrmsgReqMessageLength-1,bUrmsgReqMessageLength);
+        String bUlastSecondCh = bUrmsgReqMessage.substring(bUrmsgReqMessageLength-2,bUrmsgReqMessageLength-1);
+        if(bUlastCh.equals(" ") && bUlastSecondCh.equals("&")){
+            bUrmsgReqMessage = bUrmsgReqMessage.substring(0,bUrmsgReqMessageLength-2);
         }
-        Map<String,String> rmsgReqMap = splitReqStrtoList(rmsgReqMessage);
+        Map<String,String> bUrmsgReqMap = splitReqStrtoList(bUrmsgReqMessage);
 
-        String rmsgMsgId = optionalRmsg.get().getMsgId();
-        Optional<Rmsg> optionalRmsgAns = rmsgRepository.findByMsgIdAndMethod(rmsgMsgId,"Ans");
-        String rmsgAnsMessage = optionalRmsgAns.get().getMessage();
-        Map<String,String> rmsgAnsMap = splitAnsStrtoList(rmsgAnsMessage);
+        String bUrmsgMsgId = optionalRmsg.get().getMsgId();
+        Optional<Rmsg> bUoptionalRmsgAns = rmsgRepository.findByMsgIdAndMethod(bUrmsgMsgId,"Ans");
+        String bUrmsgAnsMessage = bUoptionalRmsgAns.get().getMessage();
+        Map<String,String> bUrmsgAnsMap = splitAnsStrtoList(bUrmsgAnsMessage);
+
+        /**************升级后rmsg数据的处理********************/
+
+        String aUorgMsgid = aUoptional.get().getMsgId();
+        Optional<Rmsg> aUoptionalRmsg = rmsgRepository.findByOrgMsgid(aUorgMsgid);
+        String aUrmsgReqMessage = aUoptionalRmsg.get().getMessage();
+        int aUrmsgReqMessageLength = aUrmsgReqMessage.length();
+        String aUlastCh = aUrmsgReqMessage.substring(aUrmsgReqMessageLength-1,aUrmsgReqMessageLength);
+        String aUlastSecondCh = aUrmsgReqMessage.substring(aUrmsgReqMessageLength-2,aUrmsgReqMessageLength-1);
+        if(aUlastCh.equals(" ") && aUlastSecondCh.equals("&")){
+            aUrmsgReqMessage = aUrmsgReqMessage.substring(0,aUrmsgReqMessageLength-2);
+        }
+        Map<String,String> aUrmsgReqMap = splitReqStrtoList(aUrmsgReqMessage);
+
+        String aUrmsgMsgId = aUoptionalRmsg.get().getMsgId();
+        Optional<Rmsg> aUoptionalRmsgAns = rmsgRepository.findByMsgIdAndMethod(aUrmsgMsgId,"Ans");
+        String aUrmsgAnsMessage = aUoptionalRmsgAns.get().getMessage();
+        Map<String,String> aUrmsgAnsMap = splitAnsStrtoList(aUrmsgAnsMessage);
+
+
 
         Map<String,Message> transInputMap = new HashMap<>();
         Map<String,Message> transOutputMap = new HashMap<>();
-        Map<String,String> msgReqTransMap = new HashMap<>();
-        Map<String,String> msgAnsTransMap = new HashMap<>();
+        Map<String,String> bUmsgReqTransMap = new HashMap<>();
+        Map<String,String> bUmsgAnsTransMap = new HashMap<>();
+        Map<String,String> aUmsgReqTransMap = new HashMap<>();
+        Map<String,String> aUmsgAnsTransMap = new HashMap<>();
 
-        Set<Result> resultReqSet = new HashSet<>();
-        Set<Result> resultAnsSet = new HashSet<>();
+
+        Set<LogResult> logResultReqSet0 = new HashSet<>();
+        Set<LogResult> logResultAnsSet0 = new HashSet<>();
+        Set<LogResult> logResultReqSet1 = new HashSet<>();
+        Set<LogResult> logResultAnsSet1 = new HashSet<>();
+        Set<LogResult> logResultReqSet2 = new HashSet<>();
+        Set<LogResult> logResultAnsSet2 = new HashSet<>();
+        Set<LogResult> logResultReqSet3 = new HashSet<>();
+        Set<LogResult> logResultAnsSet3 = new HashSet<>();
+        Set<LogResult> logResultSet = new HashSet<>();
+
 
 
         //获取转换文件
@@ -76,39 +113,47 @@ public class LogServiceImpl implements ILogService {
         }catch (Exception e){
             System.out.println(e.fillInStackTrace());
         }
-        msgReqTransMap = transMapKey(msgReqMap,transInputMap,functionid);
-        msgAnsTransMap = transMapKey(msgAnsMap,transOutputMap,functionid);
 
-        resultReqSet = comparTwoMap(msgReqTransMap,rmsgReqMap);
-        resultAnsSet = comparTwoMap(msgAnsTransMap,rmsgAnsMap);
+        bUmsgReqTransMap = transMapKey(bUmsgReqMap,transInputMap,functionid);
+        aUmsgReqTransMap = transMapKey(aUmsgReqMap,transInputMap,functionid);
+        bUmsgAnsTransMap = transMapKey(bUmsgAnsMap,transOutputMap,functionid);
+        aUmsgAnsTransMap = transMapKey(aUmsgAnsMap,transOutputMap,functionid);
 
-        //用来判断是否相等, 0表示两边参数一致，
-        //               1表示msg中有,rmsg中没有
-        //               2表示msg中没有，rmsg中有
-        //               3表示两边都有但是值不一样
-        System.out.println("msg中有而rmsg中没有的参数");
-        for(Result a:resultReqSet){
-            if(a.getFlag() == 1){
-                System.out.println("key = "+a.getKey()+" ,msgReq = "+a.getMsgvalue()+" ,rmsgReq = "+a.getRmsgvalue());
-            }
-        }
 
-        System.out.println("msg中没有而rmsg中有的参数");
-        for(Result a:resultReqSet){
-            if(a.getFlag() == 2){
-                System.out.println("key = "+a.getKey()+" ,msgReq = "+a.getMsgvalue()+" ,rmsgReq = "+a.getRmsgvalue());
-            }
-        }
+            /*
+    用来说明是哪种文件的对比
+            0   升级前msg与rmsg对比：
+            1   升级后msg与rmsg对比：
+            2   升级后msg与升级后msg对比：
+            3   升级后rmsg与升级后rmsg对比：
+     */
+        //升级前msg与rmsg对比
+        logResultReqSet0 = comparTwoMap(bUmsgReqTransMap,bUrmsgReqMap,version,0,0);
+        logResultAnsSet0 = comparTwoMap(bUmsgAnsTransMap,bUrmsgAnsMap,version,1,0);
+        //升级后msg与rmsg对比
+        logResultReqSet1 = comparTwoMap(aUmsgReqTransMap,aUrmsgReqMap,version,0,1);
+        logResultAnsSet1 = comparTwoMap(aUmsgAnsTransMap,aUrmsgAnsMap,version,1,1);
+        //msg升级前后对比
+        logResultReqSet2 = comparTwoMap(bUmsgReqTransMap,aUmsgReqTransMap,version,0,2);
+        logResultAnsSet2 = comparTwoMap(bUmsgAnsTransMap,aUmsgAnsTransMap,version,1,2);
+        //rmsg升级前后对比
+        logResultReqSet3 = comparTwoMap(bUrmsgReqMap,aUrmsgReqMap,version,0,3);
+        logResultAnsSet3 = comparTwoMap(bUrmsgAnsMap,aUrmsgAnsMap,version,1,3);
 
-        System.out.println("msg和rmsg中都有的参数，但是值不一样");
-        for(Result a:resultReqSet){
-            if(a.getFlag() == 3){
-                System.out.println("key = "+a.getKey()+" ,msgReq = "+a.getMsgvalue()+" ,rmsgReq = "+a.getRmsgvalue());
-            }
-        }
+        logResultSet.addAll(logResultReqSet0);
+        logResultSet.addAll(logResultAnsSet0);
+        logResultSet.addAll(logResultReqSet1);
+        logResultSet.addAll(logResultAnsSet1);
+        logResultSet.addAll(logResultReqSet2);
+        logResultSet.addAll(logResultAnsSet2);
+        logResultSet.addAll(logResultReqSet3);
+        logResultSet.addAll(logResultAnsSet3);
+
+        return logResultSet;
 
     }
-    public Map<String,String> transMapKey(Map<String,String> map1,Map<String,Message> map2, String functionid){
+
+    public Map<String,String> transMapKey(Map<String,String> map1, Map<String,Message> map2, String functionid){
 
         Message inputMessage = map2.get(functionid);
         Map<String,String> funcInputTransMap = inputMessage.getFieldMap();
@@ -128,7 +173,7 @@ public class LogServiceImpl implements ILogService {
         }
         return msgReqTransMap;
     }
-    public Set<Result> comparTwoMap(Map<String,String> map1, Map<String,String> map2){
+    public Set<LogResult> comparTwoMap(Map<String,String> map1, Map<String,String> map2, String version, int direction, int abvalue){
         //将msgReqTransMap与rmsgReqMap对比
         //首先处理key的交集部分
         Set<String> msgReqTransKey = map1.keySet();
@@ -140,6 +185,7 @@ public class LogServiceImpl implements ILogService {
         Set<String> rmsgDiff = new HashSet<>();
 
         Set<Result> resultReqSet = new HashSet<>();
+        Set<LogResult> logResultSet = new HashSet<>();
         keyInter.addAll(msgReqTransKey);
         keyInter.retainAll(rmsgReqKey);
         //msg中有rmsg中没有的那部分
@@ -148,41 +194,50 @@ public class LogServiceImpl implements ILogService {
         rmsgDiff = Sets.difference(rmsgReqKey,keyInter);
 
         for(String str:keyInter){
-            Result result = new Result();
+            LogResult logResult = new LogResult();
+            logResult.setVersion(version);
+            logResult.setDirection(direction);
+            logResult.setAbvalue(abvalue);
             String msgValue = map1.get(str);
             String rmsgValue = map2.get(str);
             if(msgValue.equals(rmsgValue)){
-                result.setFlag(0);
+                logResult.setFlag(0);
             }
             else{
-                result.setFlag(3);
+                logResult.setFlag(3);
             }
-            result.setKey(str);
-            result.setMsgvalue(msgValue);
-            result.setRmsgvalue(rmsgValue);
-            resultReqSet.add(result);
+            logResult.setKey(str);
+            logResult.setValuea(msgValue);
+            logResult.setValueb(rmsgValue);
+            logResultSet.add(logResult);
         }
         //第二部处理msgReq中比rmsg中多的那一部分
         for(String str:msgDiff){
-            Result result = new Result();
+            LogResult logResult = new LogResult();
             String msgValue = map1.get(str);
-            result.setKey(str);
-            result.setMsgvalue(msgValue);
-            result.setRmsgvalue("");
-            result.setFlag(1);
-            resultReqSet.add(result);
+            logResult.setKey(str);
+            logResult.setValuea(msgValue);
+            logResult.setValueb("");
+            logResult.setFlag(1);
+            logResult.setVersion(version);
+            logResult.setDirection(direction);
+            logResult.setAbvalue(abvalue);
+            logResultSet.add(logResult);
         }
         //第三部分处理rmsg中比msg中多的那一部分
         for(String str:rmsgDiff){
-            Result result = new Result();
+            LogResult logResult = new LogResult();
             String rmsgValue = map2.get(str);
-            result.setKey(str);
-            result.setRmsgvalue(rmsgValue);
-            result.setMsgvalue("");
-            result.setFlag(2);
-            resultReqSet.add(result);
+            logResult.setKey(str);
+            logResult.setValueb(rmsgValue);
+            logResult.setValuea("");
+            logResult.setFlag(2);
+            logResult.setVersion(version);
+            logResult.setDirection(direction);
+            logResult.setAbvalue(abvalue);
+            logResultSet.add(logResult);
         }
-        return resultReqSet;
+        return logResultSet;
     }
     public Map<String,String> splitAnsStrtoList(String message){
 

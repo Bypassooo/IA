@@ -76,7 +76,7 @@
         <!--<property name="filterChainDefinitionMap" ref="filterChainDefinitionMap"></property>-->
         <property name="filterChainDefinitions">
             <value>
-                /static/**= anon
+             <!--   /static/**= anon
                 /login.jsp = anon
                 /index.jsp = anon
                 /shiro/login = anon
@@ -84,7 +84,7 @@
 
                 /user.jsp = roles[user]
                 /admin.jsp = roles[admin]
-                /** = authc
+                /** = authc-->
             </value>
         </property>
     </bean>
@@ -113,8 +113,8 @@
 
 
     <!--es客户端对象的配置-->
-    <elasticsearch:transport-client id="esClient" cluster-name="my-application"
-                                    cluster-nodes="127.0.0.1:9300"/>
+    <elasticsearch:transport-client id="esClient" cluster-name="elasticsearch"
+                                    cluster-nodes="10.29.185.86:9300"/>
     <!--配置包扫描器-->
     <elasticsearch:repositories base-package="it.ztzq.repositories"/>
 

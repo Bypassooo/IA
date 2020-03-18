@@ -1,8 +1,12 @@
 package it.ztzq.test;
 
 import it.ztzq.domain.Log;
+import it.ztzq.domain.LogResult;
 import it.ztzq.repositories.LogRepository;
+import it.ztzq.repositories.LogResultRepository;
 import it.ztzq.repositories.RmsgRepository;
+import org.elasticsearch.common.Strings;
+import org.elasticsearch.index.fielddata.ScriptDocValues;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,8 @@ public class LogTest {
     private ElasticsearchTemplate elasticsearchTemplate;
     @Autowired
     private RmsgRepository rmsgRepository;
+    @Autowired
+    private LogResultRepository logResultRepository;
 
     @Test
     public void findAll() throws Exception{
@@ -39,22 +45,5 @@ public class LogTest {
         List<Log> logs = logRepository.findByMethod("Ans");
         logs.stream().forEach(log -> System.out.println(log));
     }
-    @Test
-    public void test() throws Exception{
-        Set<String> set1 = new HashSet<>();
-        Set<String> set2 = new HashSet<>();
-        Set<String> set3 = new HashSet<>();
-        set1.add("1");
-        set1.add("2");
-        set2.add("1");
-        set2.add("2");
-        set2.add("3");
-
-        set3.addAll(set1);
-        System.out.println(set3);
-        set3.retainAll(set2);
-        System.out.println(set3);
-
-        }
 
 }

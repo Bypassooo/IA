@@ -6,7 +6,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-@Document(indexName = "logstash-2020.02.28", type = "doc")
+@Document(indexName = "rmsglog_2020.03.18", type = "doc")
 public class Rmsg {
     @Id
     private Long id;

@@ -1,10 +1,10 @@
 package it.ztzq.service;
 
 
+import it.ztzq.domain.LogResult;
 import org.springframework.data.domain.Pageable;
 
-public interface ILogService {
-    public void findByOffsetAndNodeIdAndMethodAndMessageContains(Long offSet, String nodeId, String method, String checkStr);
-    public void findByFunctionidAndServiceidAndMethodAndMessageContains(String functionid, String serviceid, String method, String checkStr, Pageable pageable);
+import java.util.Set;
 
-}
+public interface ILogService {
+    public Set<LogResult> compareLog(String version, String functionid, String serviceid, String method, String checkStr, Pageable pageable,String time);}

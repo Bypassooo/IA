@@ -10,6 +10,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class LogServiceImpl implements ILogService {
     private RmsgRepository rmsgRepository;
     //升级之前msg与rmsg的对比
     @Override
-    public Set<LogResult> compareLog(String version, String functionid, String serviceid, String method, String checkStr, Pageable pageable,String time) {
+    public Set<LogResult> compareLog(String version, String functionid, String serviceid, String method, String checkStr, Pageable pageable, String time) {
 
         /**************升级前msg数据的处理********************/
         //msg升级前的数据

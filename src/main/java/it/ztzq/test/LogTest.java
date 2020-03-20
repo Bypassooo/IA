@@ -5,11 +5,11 @@ import it.ztzq.domain.LogResult;
 import it.ztzq.repositories.LogRepository;
 import it.ztzq.repositories.LogResultRepository;
 import it.ztzq.repositories.RmsgRepository;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.index.fielddata.ScriptDocValues;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -42,8 +42,7 @@ public class LogTest {
 
     @Test
     public void findByMethod() throws Exception{
-        List<Log> logs = logRepository.findByMethod("Ans");
-        logs.stream().forEach(log -> System.out.println(log));
+
     }
 
 }

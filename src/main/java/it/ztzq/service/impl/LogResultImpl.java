@@ -4,10 +4,13 @@ import it.ztzq.domain.LogResult;
 import it.ztzq.repositories.LogResultRepository;
 import it.ztzq.service.ILogResultService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -44,8 +47,9 @@ public class LogResultImpl implements ILogResultService {
     }
 
     @Override
-    public Set<LogResult> getLogResultsByVersion(String version) {
-        Set<LogResult> logResults = logResultRepository.findByVersion(version);
+    public Page<LogResult> getLogResultsByVersion(String version, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page,size);
+        Page<LogResult> logResults = logResultRepository.findByVersion(version,pageable);
         return logResults;
     }
 }

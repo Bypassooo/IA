@@ -4,8 +4,10 @@ import it.ztzq.domain.LogResult;
 import it.ztzq.service.ILogResultService;
 import it.ztzq.service.ILogService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,11 +27,10 @@ public class LogResultController {
         logResultService.createIndex();
     }
 
-    @RequestMapping("/compare")
-    public Set<LogResult> compareLog(){
+    @RequestMapping("/page/{page}/{size}")
+    public Page<LogResult> comparePageTest(@PathVariable("page") Integer page, @PathVariable("size") Integer size){
         Set<LogResult> compareResult = new HashSet<>();
-        Set<LogResult> logResultSet = new HashSet<>();
-        Pageable pageable = PageRequest.of(0,100);
+        Pageable pageable = PageRequest.of(2,1);
         String version = "v1";
         String functionid = "L2620137";
         String serviceid = "OTC";
@@ -37,9 +38,10 @@ public class LogResultController {
         String checkStr = "&_1=0,0";
         String time = "2019-12-30T13:58:31.000Z";
         //首先查询数据库中是否存在对比后的记录
-        logResultSet = logResultService.getLogResultsByVersion(version);
+        Page<LogResult> logResultList = logResultService.getLogResultsByVersion(version,0,1);
         boolean existlog = false;
-        if(logResultSet.size() != 0){
+        System.out.println(logResultList.getTotalPages());
+        if(logResultList.getTotalPages() > 0){
             existlog = true;
         }
         if(!existlog){
@@ -49,8 +51,8 @@ public class LogResultController {
                 logResultService.addDocument(logResult);
             }
         }
-        logResultSet = logResultService.getLogResultsByVersion(version);
-        return logResultSet;
+        logResultList = logResultService.getLogResultsByVersion(version,page,size);
+        return logResultList;
     }
 }
 
